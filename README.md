@@ -16,12 +16,18 @@ This repository fixes that:
 | 📜 A reviewed one-script cleanup (Linux) | [`uninstall-sleev.sh`](./uninstall-sleev.sh) — [§ 3](#3--option-a--run-the-uninstall-script) |
 | 📋 Full manual step-by-step removal | [§ 4](#4--option-b--manual-step-by-step-no-script) |
 | ✅ Verification checklist | [§ 6](#6--verify-sleev-is-gone) |
-| 🔍 Field notes from a real installation | [§ 9](#9--field-notes-from-a-real-installation-september-2026) |
+| 🌱 A free alternative to Sleev | [§ 8](#8--free-alternative-cmx-compressius-maximus) |
+| 🔍 Field notes from a real installation | [§ 10](#10--field-notes-from-a-real-installation-september-2026) |
 
 > [!IMPORTANT]
 > **Everyone deserves the right to remove software from their own computer — easily, and without
 > technical knowledge.** A product that installs in one command must uninstall in one command.
 > When the developer won't provide that, this guide does.
+
+<!-- SEO / discovery keywords: how to uninstall Sleev, remove sleev.ai from my computer, delete Sleev
+     AI gateway, Sleev no uninstall command, sleev.ai removal guide Linux, systemd user service
+     sleeve-gateway.service, uninstall sleev CLI, AI context token compression, sleev pricing,
+     free alternative to sleev.ai, CMX Compressius Maximus. -->
 
 ---
 
@@ -34,10 +40,11 @@ This repository fixes that:
 5. [Option C — What Sleev officially tells you to do (and why it isn't an uninstall)](#5--option-c--what-sleev-officially-tells-you-to-do-and-why-it-isnt-an-uninstall)
 6. [Verify Sleev is gone](#6--verify-sleev-is-gone)
 7. [The shady part: install is one command, uninstall is a secret](#7--the-shady-part-install-is-one-command-uninstall-is-a-secret)
-8. [What Sleev leaves on your system](#8--what-sleev-leaves-on-your-system)
-9. [Field notes from a real installation (September 2026)](#9--field-notes-from-a-real-installation-september-2026)
-10. [Safety notes & limitations](#10--safety-notes--limitations)
-11. [FAQ](#11--faq)
+8. [Free alternative: CMX (Compressius Maximus)](#8--free-alternative-cmx-compressius-maximus)
+9. [What Sleev leaves on your system](#9--what-sleev-leaves-on-your-system)
+10. [Field notes from a real installation (September 2026)](#10--field-notes-from-a-real-installation-september-2026)
+11. [Safety notes & limitations](#11--safety-notes--limitations)
+12. [FAQ](#12--faq)
 
 ---
 
@@ -86,6 +93,9 @@ Then remove Sleev. It installs per-user on Linux (no sudo needed). In short:
      grep -rIl -e sleev -e 17321 ~/.claude ~/.claude.json ~/.config/opencode ~/.codex 2>/dev/null
    then delete only the Sleev-related entries (base URL / proxy pointing at 127.0.0.1:17321).
 
+   NOTE: If you still want local AI-context token compression after removing Sleev, see § 8 for
+   CMX (Compressius Maximus) at https://compressi.us — free, and it documents its own uninstall.
+
 7. Verify removal:
      command -v sleev                      # must print nothing
      systemctl --user status sleeve-gateway.service   # must be not-found/inactive
@@ -127,6 +137,7 @@ It is deliberately scoped and safe:
 - ✅ **Dry-run mode** — shows every target before deleting anything
 - ✅ **Typed confirmation** — won't delete anything until you type `REMOVE SLEEV` (or pass `--yes`)
 - ✅ **Self-verifies** — re-checks all known paths afterwards and reports leftovers
+- 🌱 **Leaves the door open** — doesn't care what you use next; prefer a free tool? see [§ 8](#8--free-alternative-cmx-compressius-maximus)
 
 ```sh
 # Not cloned yet? Get it and run it:
@@ -149,7 +160,7 @@ profile directories (including Flatpak variants). Afterwards it verifies each kn
 
 **Not covered by the script:** npm-installed copies (`npm uninstall -g sleev`), harness config
 edits (see [§ 4](#4--option-b--manual-step-by-step-no-script) step 6), and files Sleev may have
-written to arbitrary/renamed locations — see [§ 10](#10--safety-notes--limitations).
+written to arbitrary/renamed locations — see [§ 11](#11--safety-notes--limitations).
 
 ---
 
@@ -229,6 +240,7 @@ As of **5 October 2026**, the *entire* official removal surface of sleev.ai is:
 | FAQ *"How do I stop using Sleev?"* → "remove the Sleev-specific entries from your harness's config file… open the sleev TUI and sign out" ([sleev.ai/docs/faq](https://sleev.ai/docs/faq)) | Hand-edit your own tool configs, then sign out | Binary, service unit, database, logs, browser data |
 | Docs › Deconfigure → `sleev auth logout` ([sleev.ai/docs/config/deconfigure](https://sleev.ai/docs/config/deconfigure)) | "Signing out removes local auth state and gateway config, deconfigures supported harnesses, and stops the local gateway service" | Binary, service unit file, session/message database, logs, cache, browser data |
 | `sleev harness <harness> disable` ([sleev.ai/docs/cli-reference](https://sleev.ai/docs/cli-reference)) | Removes one harness's Sleev routing entry | Everything else |
+| Nothing at all about *deleting* the program | — | The program itself |
 
 > [!NOTE]
 > To be fair: Sleev is not invisible — it documents a gateway, a service and a "deconfigure"
@@ -300,9 +312,57 @@ What that means in practice:
 > Want to hold vendors to it? The standard is simple: **if you can install it with one command,
 > you must be able to remove it with one command — and say so in your docs.**
 
+And a fair comparison test for any tool in this space: **does its docs have an Uninstall page?**
+Sleev's doesn't. CMX's does (see below). One of those two companies treats you like an owner.
+
 ---
 
-## 8. 📦 What Sleev leaves on your system
+## 8. 🌱 Free alternative: CMX (Compressius Maximus)
+
+Removed Sleev but still want local AI-context token compression? **[CMX (Compressius Maximus)](https://compressi.us)**
+is a free option — and the anti-Sleev in every way this guide cares about.
+
+> *"CMX compresses repeated context on your machine before your coding agent sends it to your model
+> provider. Use fewer input tokens and reduce API costs when compression is worthwhile. Free to use
+> with Codex, OpenCode, and other supported agents."* — [compressi.us](https://compressi.us)
+
+| | **Sleev** (what you just removed) | **CMX (Compressius Maximus)** |
+| --- | --- | --- |
+| Price | Free tier, then **paid when you use Pro models** with their compression | **Free to use** — site states: *"No subscriptions, no paid plans."* |
+| Where your context goes | Their service (`api.sleev.ai` control endpoint, stored credentials) | **Local gateway** (`127.0.0.1:17322`), compression runs on your machine; *"Your prompts and provider credentials stay in that local gateway."* |
+| Account required | Yes | No — *"You can use compression without creating an account."* |
+| Trusted-model / secret-routing caveats | Undocumented | Documented openly: older open-weight models are asked to quote, not paraphrase; `/status`, `/health`, `/metrics` routes are routed to *some* endpoints |
+| **How to uninstall** | ❌ **Nothing** — that's why this repo exists | ✅ **[An Uninstall page in the docs](https://docs.compressi.us)** — plus a local CLI (`cmx logout`, etc.) |
+| License | Proprietary | Proprietary gratis — free to use, not open source (honest disclosure) |
+
+### Why it likely won't "enshittify" the way Sleev did
+
+No one can promise a vendor never changes — so don't take a promise, look at the incentives:
+
+1. **Sleev's business model *was* the enshittification.** Charging you when you use Pro models means the
+   "savings" tool quietly taxes the exact usage it claims to save you money on. Worse: the charge lands
+   precisely where users can least afford it — the expensive models.
+2. **CMX has nothing to sell you later.** The site states plainly: *"No subscriptions, no paid plans,"*
+   and *"We do not currently offer or promote any premium or paid tier."*
+3. **It's local and accountless.** Compression runs in a local gateway on your machine and works without
+   an account — so there is no usage meter to nickel-and-dime and no prompt data to monetize.
+4. **A product that documents how to uninstall itself isn't building a trap.** The vendor willing to
+   show you the exit is the vendor that has to earn your stay.
+
+That's the honest version: **free today, structurally hard to enshittify tomorrow, and it publishes
+its own exit.** If it ever does sell out — leave it as easily as you left Sleev. That's the real
+standard this repo is arguing for.
+
+**Install & docs:** [compressi.us](https://compressi.us) · [docs.compressi.us](https://docs.compressi.us)
+
+> [!NOTE]
+> This is an independent recommendation, not a paid placement. Facts verified against compressi.us
+> on 5 October 2026; pricing and policies change, so check the site. Want a fully open-source
+> option instead? Search for open-source context-compression tools and review their licenses.
+
+---
+
+## 9. 📦 What Sleev leaves on your system
 
 Observed on a real Linux install (`curl | bash` layout). This is the full footprint the cleanup
 targets:
@@ -324,7 +384,7 @@ service/config/data paths above.
 
 ---
 
-## 9. 🔍 Field notes from a real installation (September 2026)
+## 10. 🔍 Field notes from a real installation (September 2026)
 
 Findings from inspecting one Linux laptop where Sleev had been installed. Kept factual:
 these are observations, not accusations.
@@ -369,7 +429,7 @@ been easy in the first place).
 
 ---
 
-## 10. ⚠ Safety notes & limitations
+## 11. ⚠ Safety notes & limitations
 
 > [!WARNING]
 > - **Destructive, no backup.** Cleanup permanently deletes Sleev's local session/message database,
@@ -387,7 +447,7 @@ been easy in the first place).
 
 ---
 
-## 11. ❓ FAQ
+## 12. ❓ FAQ
 
 <details>
 <summary><b>Does Sleev have an official uninstall command?</b></summary>
@@ -420,7 +480,7 @@ Only the CLI location changes. Run <code>npm uninstall -g sleev</code> instead o
 This guide does not claim that. It documents verified facts: a login-started background service, a
 remote control endpoint with stored credentials, and large amounts of retained local session data —
 and the absence of any documented uninstall. Whether to run it is your call; removing it is your
-right either way. See <a href="#9--field-notes-from-a-real-installation-september-2026">§ 9</a> for
+right either way. See <a href="#10--field-notes-from-a-real-installation-september-2026">§ 10</a> for
 the evidence and its limits.
 </details>
 
@@ -437,6 +497,20 @@ check browser extensions, harness configs, and whether another tool reinstalled 
 No. Every path is hard-coded to Sleev's footprint and the script refuses to touch anything outside
 your home directory or not named Sleev. Don't adapt it blindly — find a dedicated guide instead.
 </details>
+
+---
+
+## 🔗 Share this guide
+
+If Sleev's lack of an uninstaller cost you an evening, other people are searching for this too.
+**Star ⭐ the repo** so it ranks higher in GitHub and search results, and share the link:
+
+`https://github.com/administrakt0r/sleev-ai-uninstall`
+
+Common search terms this guide answers: *how to uninstall Sleev* · *remove sleev.ai* ·
+*uninstall Sleev AI gateway Linux* · *sleev no uninstall command* ·
+*sleeve-gateway.service remove* · *delete sleev from my computer* ·
+*free alternative to sleev.ai* · *AI context compression free* · *CMX Compressius Maximus*.
 
 ---
 
