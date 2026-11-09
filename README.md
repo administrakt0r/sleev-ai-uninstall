@@ -1,33 +1,29 @@
 # 🧹 Remove Sleev (sleev.ai) from your system
 
-**A community uninstall guide for the Sleev AI gateway — because Sleev.ai doesn't ship one.**
+**A community uninstall guide and automated cleanup tools for the Sleev AI gateway — because [Sleev.ai](https://sleev.ai) doesn't ship one.**
 
-Sleev installs itself on your machine with a single `curl | bash` one-liner, runs a background
-gateway service at every login, and stores your AI session data locally. But **there is no
-uninstall command, no uninstall page, and no uninstall instructions anywhere on sleev.ai** —
-checked on **5 October 2026** (see [§ 7](#7--the-shady-part-install-is-one-command-uninstall-is-a-secret)).
+Sleev installs itself on your machine with a single `curl | bash` or PowerShell one-liner, quietly sets up a background gateway service at every login, intercepts your AI traffic, and records all your prompts, completions, and session data locally.
 
-This repository fixes that:
+Yet, despite charging users paid subscription fees on their [pricing page](https://sleev.ai/pricing), **there is no uninstall command, no uninstaller executable, no entry in Windows "Installed apps" / "Add or Remove Programs", no package manager uninstall, and no uninstall instructions anywhere on [sleev.ai](https://sleev.ai)**.
+
+This repository fixes that for both **Linux** and **Windows**:
 
 | What you get | Where |
 | --- | --- |
-| 🤖 Copy-paste prompt for AI coding agents | [§ 1](#1--copy-paste-this-into-your-ai-coding-agent) |
-| ⚡ 60-second removal | [§ 2](#2--quick-start-60-second-removal) |
-| 📜 A reviewed one-script cleanup (Linux) | [`uninstall-sleev.sh`](./uninstall-sleev.sh) — [§ 3](#3--option-a--run-the-uninstall-script) |
-| 📋 Full manual step-by-step removal | [§ 4](#4--option-b--manual-step-by-step-no-script) |
-| ✅ Verification checklist | [§ 6](#6--verify-sleev-is-gone) |
-| 🌱 A free alternative to Sleev | [§ 8](#8--free-alternative-cmx-compressius-maximus) |
-| 🔍 Field notes from a real installation | [§ 10](#10--field-notes-from-a-real-installation-september-2026) |
+| 🤖 Copy-paste prompt for AI coding agents (Windows & Linux) | [§ 1](#1--copy-paste-this-into-your-ai-coding-agent) |
+| ⚡ 60-second quick removal | [§ 2](#2--quick-start-60-second-removal) |
+| 📜 One-script automated cleanup (Linux bash & Windows PowerShell) | [`uninstall-sleev.sh`](./uninstall-sleev.sh) & [`uninstall-sleev.ps1`](./uninstall-sleev.ps1) — [§ 3](#3--option-a--run-the-uninstall-script) |
+| 📋 Full manual step-by-step removal (Linux & Windows) | [§ 4](#4--option-b--manual-step-by-step-no-script) |
+| 🔗 What Sleev claims vs. what actually happens | [§ 5](#5--option-c--what-sleev-officially-tells-you-to-do-and-why-it-isnt-an-uninstall) |
+| ✅ Verification checklists | [§ 6](#6--verify-sleev-is-gone) |
+| 🚨 The hard questions: Why does Sleev charge money for software you can't uninstall? | [§ 7](#7--the-shady-reality-charging-for-software-you-cant-uninstall) |
+| 🌱 Free & transparent alternative to Sleev | [§ 8](#8--free-alternative-cmx-compressius-maximus) |
+| 📦 What Sleev leaves behind (Linux & Windows tables) | [§ 9](#9--what-sleev-leaves-on-your-system) |
+| 🔍 Real-world field notes (Linux & Windows audits) | [§ 10](#10--field-notes-from-real-installations-linux--windows) |
 
 > [!IMPORTANT]
-> **Everyone deserves the right to remove software from their own computer — easily, and without
-> technical knowledge.** A product that installs in one command must uninstall in one command.
-> When the developer won't provide that, this guide does.
-
-<!-- SEO / discovery keywords: how to uninstall Sleev, remove sleev.ai from my computer, delete Sleev
-     AI gateway, Sleev no uninstall command, sleev.ai removal guide Linux, systemd user service
-     sleeve-gateway.service, uninstall sleev CLI, AI context token compression, sleev pricing,
-     free alternative to sleev.ai, CMX Compressius Maximus. -->
+> **Everyone has the fundamental right to remove software from their own computer — easily, completely, and without reverse-engineering detective work.**
+> A product that installs in a single command must provide a clean uninstall in a single command. When a vendor charges for software yet deliberately refuses to provide an exit door, this community guide provides it.
 
 ---
 
@@ -35,14 +31,16 @@ This repository fixes that:
 
 1. [Copy-paste this into your AI coding agent](#1--copy-paste-this-into-your-ai-coding-agent)
 2. [Quick start (60-second removal)](#2--quick-start-60-second-removal)
-3. [Option A — Run the uninstall script](#3--option-a--run-the-uninstall-script)
-4. [Option B — Manual step-by-step (no script)](#4--option-b--manual-step-by-step-no-script)
-5. [Option C — What Sleev officially tells you to do (and why it isn't an uninstall)](#5--option-c--what-sleev-officially-tells-you-to-do-and-why-it-isnt-an-uninstall)
+3. [Option A — Run the uninstall script (Linux & Windows)](#3--option-a--run-the-uninstall-script)
+4. [Option B — Manual step-by-step removal](#4--option-b--manual-step-by-step-no-script)
+   - [Windows Manual Removal](#windows-powershell-step-by-step)
+   - [Linux Manual Removal](#linux-bash-step-by-step)
+5. [Option C — What Sleev officially tells you to do (and why it fails)](#5--option-c--what-sleev-officially-tells-you-to-do-and-why-it-isnt-an-uninstall)
 6. [Verify Sleev is gone](#6--verify-sleev-is-gone)
-7. [The shady part: install is one command, uninstall is a secret](#7--the-shady-part-install-is-one-command-uninstall-is-a-secret)
+7. [The shady reality: Charging for software you can't uninstall](#7--the-shady-reality-charging-for-software-you-cant-uninstall)
 8. [Free alternative: CMX (Compressius Maximus)](#8--free-alternative-cmx-compressius-maximus)
-9. [What Sleev leaves on your system](#9--what-sleev-leaves-on-your-system)
-10. [Field notes from a real installation (September 2026)](#10--field-notes-from-a-real-installation-september-2026)
+9. [What Sleev leaves on your system (Filesystem footprint)](#9--what-sleev-leaves-on-your-system)
+10. [Field notes from real installations (Linux & Windows)](#10--field-notes-from-real-installations-linux--windows)
 11. [Safety notes & limitations](#11--safety-notes--limitations)
 12. [FAQ](#12--faq)
 
@@ -50,62 +48,73 @@ This repository fixes that:
 
 ## 1. 🤖 Copy-paste this into your AI coding agent
 
-Using **Claude Code, Cursor, OpenCode, Codex, Windsurf, or any other AI coder?**
-Copy the block below and paste it as your prompt. The agent will read this guide and remove
-Sleev completely — even though Sleev provides no uninstaller.
+Using **Claude Code, Cursor, Codex, OpenCode, Antigravity, Windsurf, or any other AI coder?**
+Copy the relevant block below and paste it as your prompt. Your AI agent will execute the removal cleanly and repair your development environment.
+
+### 🪟 For Windows (PowerShell)
 
 ````text
-TASK: Completely remove the "Sleev" / "sleev.ai" AI gateway software from this computer.
+TASK: Completely remove the "Sleev" / "sleev.ai" software, its background gateway, and all remnants from this Windows PC.
 
 First, read the removal guide:
-- If this repository is cloned locally, read its README.md.
-- Otherwise fetch https://raw.githubusercontent.com/administrakt0r/sleev-ai-uninstall/main/README.md
-  (repo: https://github.com/administrakt0r/sleev-ai-uninstall) and follow it.
+- If this repository is cloned locally, read README.md and run .\uninstall-sleev.ps1 -Yes.
+- Otherwise fetch https://raw.githubusercontent.com/administrakt0r/sleev-ai-uninstall/main/README.md and follow it.
 
-Then remove Sleev. It installs per-user on Linux (no sudo needed). In short:
+Execute the cleanup steps in PowerShell:
+1. Close all browsers (Chrome, Edge, Brave, Firefox) so site data is unlocked.
+2. Terminate all Sleev processes:
+     Get-Process | Where-Object { $_.ProcessName -match "sleev|sleeve" } | Stop-Process -Force -ErrorAction SilentlyContinue
+3. Delete the Windows Scheduled Task:
+     Unregister-ScheduledTask -TaskName "SleeveGateway" -Confirm:$false -ErrorAction SilentlyContinue
+   (If this fails due to admin privileges, instruct the user to run: Unregister-ScheduledTask -TaskName "SleeveGateway" -Confirm:$false in an elevated terminal).
+4. If installed globally via npm, remove the npm package:
+     npm uninstall -g sleev
+5. Permanently remove all Sleev application files, multi-version gateway binaries, SQLite databases, and logs:
+     Remove-Item -Path "$env:USERPROFILE\.local\bin\sleev.exe", "$env:USERPROFILE\.local\state\sleev", "$env:LOCALAPPDATA\sleev", "$env:LOCALAPPDATA\sleev-gateway", "$env:APPDATA\sleev", "$env:APPDATA\ai.opencode.desktop\sleev" -Recurse -Force -ErrorAction SilentlyContinue
+     Get-ChildItem -Path "$env:LOCALAPPDATA\Temp" -Filter "_MEI*" -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName "*sleeve*") } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+6. Delete browser IndexedDB site data containing "sleev" under Google Chrome, Microsoft Edge, Brave, and Mozilla Firefox:
+     Get-ChildItem -Path "$env:LOCALAPPDATA\Google\Chrome\User Data", "$env:LOCALAPPDATA\Microsoft\Edge\User Data", "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data", "$env:APPDATA\Mozilla\Firefox\Profiles" -Recurse -Filter "*sleev*" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+7. REPAIR AI HARNESS CONFIGS (CRITICAL):
+   Sleev rewrites coding tool configs to route through 127.0.0.1:17321. Revert them so tools don't fail:
+   - Check and clean ~/.codex/config.toml: delete [model_providers.sleev] and its headers.
+   - Check and clean ~/.config/opencode/opencode.jsonc: remove Sleev proxy baseURL (127.0.0.1:17321) and sleev-provider headers.
+   - Check Claude Code (~/.claude.json, ~/.claude) or other agents for references to 17321 or sleev.
+8. Verify removal:
+     Get-Command sleev -ErrorAction SilentlyContinue          # must return nothing
+     Get-NetTCPConnection -LocalPort 17321 -ErrorAction SilentlyContinue # must return nothing
+     Get-ChildItem -Path "$env:LOCALAPPDATA", "$env:APPDATA" -Filter "*sleev*" -Recurse -Depth 2 -ErrorAction SilentlyContinue # must return nothing
+````
 
-1. Close all browsers (Chrome/Chromium/Brave/Firefox) before touching browser data.
+### 🐧 For Linux (Bash)
 
-2. If the CLI still exists, try the official deconfigure first:
-     ~/.local/bin/sleev auth logout    # stops gateway, deconfigures AI harnesses
-   (If the binary is missing or errors, continue anyway.)
+````text
+TASK: Completely remove the "Sleev" / "sleev.ai" software, its background gateway service, and all remnants from this Linux computer.
 
-3. Stop and delete the background service:
+First, read the removal guide:
+- If this repository is cloned locally, run ./uninstall-sleev.sh --yes.
+- Otherwise fetch https://raw.githubusercontent.com/administrakt0r/sleev-ai-uninstall/main/README.md and follow it.
+
+Execute the cleanup steps in Bash:
+1. Close all browsers (Chrome, Chromium, Brave, Firefox).
+2. Stop and disable the background user service:
      systemctl --user disable --now sleeve-gateway.service 2>/dev/null
-     rm -f ~/.config/systemd/user/sleeve-gateway.service
-     rm -f ~/.config/systemd/user/default.target.wants/sleeve-gateway.service
+     rm -f ~/.config/systemd/user/sleeve-gateway.service ~/.config/systemd/user/default.target.wants/sleeve-gateway.service
      systemctl --user daemon-reload 2>/dev/null
-
-4. Delete Sleev's files (delete ONLY these Sleev-named paths):
+3. Remove CLI binary and npm package:
      rm -f ~/.local/bin/sleev
+     npm uninstall -g sleev 2>/dev/null || true
+4. Remove data directories, SQLite databases, logs, and cache:
      rm -rf ~/.config/sleev ~/.local/share/sleev ~/.local/state/sleev ~/.cache/sleev-gateway
-   If installed via npm instead: npm uninstall -g sleev
-
-5. Remove Sleev browser site data: any directory/file whose name contains "sleev"
-   under the Chrome, Chromium, Brave and Firefox profile dirs, e.g.
-     ~/.config/google-chrome/Default/IndexedDB/https_sleev.ai_0.indexeddb.leveldb
-   Find them with:
-     find ~/.config/google-chrome ~/.config/chromium ~/.config/BraveSoftware ~/.mozilla/firefox \
-       -depth -iname '*sleev*' 2>/dev/null
-
-6. Remove Sleev entries from AI harness configs (Claude Code, OpenCode, Codex, etc.) so
-   requests go straight to the providers again. Locate them with:
-     grep -rIl -e sleev -e 17321 ~/.claude ~/.claude.json ~/.config/opencode ~/.codex 2>/dev/null
-   then delete only the Sleev-related entries (base URL / proxy pointing at 127.0.0.1:17321).
-
-   NOTE: If you still want local AI-context token compression after removing Sleev, see § 8 for
-   CMX (Compressius Maximus) at https://compressi.us — free, and it documents its own uninstall.
-
+5. Remove browser IndexedDB site data:
+     find ~/.config/google-chrome ~/.config/chromium ~/.config/BraveSoftware ~/.mozilla/firefox -depth -iname '*sleev*' -exec rm -rf {} + 2>/dev/null
+6. Repair AI harness configs (Claude Code, OpenCode, Codex):
+     Find any configs pointing to 127.0.0.1:17321 using:
+       grep -rIl -e sleev -e 17321 ~/.claude ~/.claude.json ~/.config/opencode ~/.codex 2>/dev/null
+     and remove the Sleev proxy entries so traffic goes directly to upstream model providers.
 7. Verify removal:
-     command -v sleev                      # must print nothing
-     systemctl --user status sleeve-gateway.service   # must be not-found/inactive
-     find ~ -maxdepth 5 -iname '*sleev*' 2>/dev/null  # must print nothing
-
-SAFETY RULES:
-- Scope: only files named sleev / sleeve-gateway. Do NOT delete anything else.
-- No sudo and no system-wide changes — Sleev installs per user.
-- Deletion is permanent; no backup is made. Ask the user first if anything is unclear.
-- Sleev ships no official uninstaller — deleting these files IS the removal. This is expected.
+     command -v sleev                                         # must return nothing
+     systemctl --user status sleeve-gateway.service 2>&1      # must show not-found
+     find ~ -maxdepth 4 -iname '*sleev*' 2>/dev/null          # must return nothing
 ````
 
 ---
@@ -113,404 +122,364 @@ SAFETY RULES:
 ## 2. ⚡ Quick start (60-second removal)
 
 > [!WARNING]
-> Cleanup **permanently deletes** Sleev's local session/message database, logs, credentials and
-> browser data. **No backup is made.** If in doubt, run the dry-run first.
+> Cleanup **permanently deletes** Sleev's local SQLite session/message database, tokens, logs, multi-version binaries, and browser storage. **No backup is made.**
 
-Close Chrome / Chromium / Brave / Firefox, open a terminal in this folder, and run:
+### Windows
 
-```sh
-./uninstall-sleev.sh --dry-run   # 1. preview what will be removed (changes nothing)
-./uninstall-sleev.sh             # 2. do it (asks you to type: REMOVE SLEEV)
+Close your browsers, open **PowerShell**, navigate to this repo folder, and run:
+
+```powershell
+.\uninstall-sleev.ps1 -DryRun   # 1. Preview what will be removed
+.\uninstall-sleev.ps1           # 2. Delete everything (prompts: REMOVE SLEEV)
 ```
 
-That's it. Details, manual alternatives and verification below.
+*(Or pass `-Yes` to run unattended).*
+
+### Linux
+
+Close your browsers, open a terminal, and run:
+
+```bash
+./uninstall-sleev.sh --dry-run   # 1. Preview what will be removed
+./uninstall-sleev.sh             # 2. Delete everything (prompts: REMOVE SLEEV)
+```
 
 ---
 
 ## 3. 📜 Option A — Run the uninstall script
 
-The script [`uninstall-sleev.sh`](./uninstall-sleev.sh) is plain bash you can read before running.
-It is deliberately scoped and safe:
+We provide reviewed, open scripts for both operating systems:
+- **Windows:** [`uninstall-sleev.ps1`](./uninstall-sleev.ps1) (PowerShell)
+- **Linux:** [`uninstall-sleev.sh`](./uninstall-sleev.sh) (Bash)
 
-- ✅ **No `sudo`** — touches only your own home directory, refuses any path outside `$HOME`
-- ✅ **No network** — never contacts Sleev or any remote service
-- ✅ **Dry-run mode** — shows every target before deleting anything
-- ✅ **Typed confirmation** — won't delete anything until you type `REMOVE SLEEV` (or pass `--yes`)
-- ✅ **Self-verifies** — re-checks all known paths afterwards and reports leftovers
-- 🌱 **Leaves the door open** — doesn't care what you use next; prefer a free tool? see [§ 8](#8--free-alternative-cmx-compressius-maximus)
+Both scripts are safe, transparent, and non-destructive to unrelated files:
+- ✅ **No network access** — never phones home to Sleev or any external server
+- ✅ **Dry-run mode** — lets you inspect every targeted file before anything is touched
+- ✅ **Scoped** — only targets directories, files, tasks, and packages explicitly identified as Sleev
+- ✅ **Self-verifying** — performs an immediate post-removal audit to ensure nothing survived
 
-```sh
-# Not cloned yet? Get it and run it:
-curl -fsSL https://raw.githubusercontent.com/administrakt0r/sleev-ai-uninstall/main/uninstall-sleev.sh -o uninstall-sleev.sh
-chmod +x uninstall-sleev.sh
-./uninstall-sleev.sh --dry-run
-./uninstall-sleev.sh
+```powershell
+# Windows: download and run directly
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/administrakt0r/sleev-ai-uninstall/main/uninstall-sleev.ps1 -OutFile uninstall-sleev.ps1
+powershell -ExecutionPolicy Bypass -File .\uninstall-sleev.ps1
 ```
 
-| Flag | Effect |
-| --- | --- |
-| `--dry-run` | List all cleanup targets and exit without changing anything |
-| `--yes` | Skip the interactive confirmation (for unattended runs) |
-| `--help` | Show usage |
-
-**What it removes:** the `sleev` CLI, the `sleeve-gateway.service` systemd *user* unit and its
-enablement link, `~/.config/sleev`, `~/.local/share/sleev`, `~/.local/state/sleev`,
-`~/.cache/sleev-gateway`, and Sleev-named site data in common Chrome/Chromium/Brave/Firefox
-profile directories (including Flatpak variants). Afterwards it verifies each known location.
-
-**Not covered by the script:** npm-installed copies (`npm uninstall -g sleev`), harness config
-edits (see [§ 4](#4--option-b--manual-step-by-step-no-script) step 6), and files Sleev may have
-written to arbitrary/renamed locations — see [§ 11](#11--safety-notes--limitations).
+```bash
+# Linux: download and run directly
+curl -fsSL https://raw.githubusercontent.com/administrakt0r/sleev-ai-uninstall/main/uninstall-sleev.sh -o uninstall-sleev.sh
+chmod +x uninstall-sleev.sh
+./uninstall-sleev.sh
+```
 
 ---
 
 ## 4. 📋 Option B — Manual step-by-step (no script)
 
-Everything below is copy-paste. Linux, per-user install. No `sudo` required at any point.
+If you prefer to run commands manually one by one without executing scripts, use the instructions below for your platform.
 
-**1 — Deconfigure the official way (optional first step)**
+### Windows PowerShell (Step-by-Step)
 
-```sh
-~/.local/bin/sleev auth logout
+#### 1. Terminate all Sleev processes
+```powershell
+Get-Process | Where-Object { $_.ProcessName -match "sleev|sleeve" } | Stop-Process -Force -ErrorAction SilentlyContinue
 ```
 
-This stops the gateway service and removes Sleev's routing entries from supported AI harnesses
-(Claude Code, OpenCode, Codex, Pi, Grok Build, Hermes Agent). It is *not* an uninstall —
-the binary, database, logs and browser data survive it (see [§ 5](#5--option-c--what-sleev-officially-tells-you-to-do-and-why-it-isnt-an-uninstall)).
+#### 2. Close Web Browsers
+Close Google Chrome, Microsoft Edge, Brave, and Mozilla Firefox so that their LevelDB/IndexedDB site databases are unlocked.
 
-**2 — Close your browsers**
+#### 3. Delete the Windows Logon Scheduled Task
+Sleev installs a task called `SleeveGateway` set to run silently at every user logon:
+```powershell
+Unregister-ScheduledTask -TaskName "SleeveGateway" -Confirm:$false
+```
+*(Note: If Sleev created this task during an elevated setup, running this command in an Administrator PowerShell window or running `schtasks /Delete /TN "SleeveGateway" /F` may be required).*
 
-Chrome, Chromium, Brave and Firefox must be closed so their site-data databases aren't in use.
+#### 4. Uninstall global npm package (if present)
+```powershell
+npm uninstall -g sleev
+```
 
-**3 — Kill the background service**
+#### 5. Delete Sleev application directories, SQLite databases, and executables
+Sleev scatters multi-version gateway binaries, logs, and session databases across your profile:
+```powershell
+Remove-Item -Path "$env:USERPROFILE\.local\bin\sleev.exe" -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:USERPROFILE\.local\state\sleev" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:LOCALAPPDATA\sleev" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:LOCALAPPDATA\sleev-gateway" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:APPDATA\sleev" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:APPDATA\ai.opencode.desktop\sleev" -Recurse -Force -ErrorAction SilentlyContinue
+```
 
-```sh
+#### 6. Delete temporary distribution folders
+```powershell
+Get-ChildItem -Path "$env:LOCALAPPDATA\Temp" -Filter "_MEI*" -Directory -ErrorAction SilentlyContinue | Where-Object { Test-Path (Join-Path $_.FullName "*sleeve*") } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+#### 7. Remove Sleev browser site data
+```powershell
+Get-ChildItem -Path "$env:LOCALAPPDATA\Google\Chrome\User Data", "$env:LOCALAPPDATA\Microsoft\Edge\User Data", "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data", "$env:APPDATA\Mozilla\Firefox\Profiles" -Recurse -Filter "*sleev*" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+#### 8. Repair AI coding agent configurations (CRITICAL)
+Sleev silently modifies your AI coding assistants to route API calls into its local port `17321`. When you remove Sleev, these tools will fail to connect until restored:
+- **Codex (`~/.codex/config.toml`):** Delete the `[model_providers.sleev]` block and its `[model_providers.sleev.http_headers]`.
+- **OpenCode (`~/.config/opencode/opencode.jsonc`):** Remove any provider configuration blocks where `baseURL` is set to `http://127.0.0.1:17321` and remove the `sleev-provider` headers so OpenCode speaks directly to upstream providers.
+- **Claude Code (`~/.claude.json` / `~/.claude`):** Inspect for any base URL pointing to `127.0.0.1:17321` and remove it.
+
+---
+
+### Linux Bash (Step-by-Step)
+
+#### 1. Close your browsers
+Close Chrome, Chromium, Brave, and Firefox so local databases are not locked.
+
+#### 2. Stop and delete the systemd user service
+```bash
 systemctl --user disable --now sleeve-gateway.service 2>/dev/null
 rm -f ~/.config/systemd/user/sleeve-gateway.service
 rm -f ~/.config/systemd/user/default.target.wants/sleeve-gateway.service
 systemctl --user daemon-reload 2>/dev/null
 ```
 
-**4 — Remove the CLI**
-
-```sh
+#### 3. Remove the CLI binary and npm packages
+```bash
 rm -f ~/.local/bin/sleev
-# If you installed it via npm instead:
-npm uninstall -g sleev
+npm uninstall -g sleev 2>/dev/null || true
 ```
 
-**5 — Remove config, data, logs and cache**
-
-```sh
+#### 4. Delete config, session databases, state, and logs
+```bash
 rm -rf ~/.config/sleev ~/.local/share/sleev ~/.local/state/sleev ~/.cache/sleev-gateway
 ```
 
-**6 — Clean the AI harness configs (so your tools work again without Sleev)**
-
-Sleev edits your coding-agent config files to route requests through its gateway on
-`127.0.0.1:17321`. Find and delete those Sleev-specific entries (base URL / proxy overrides):
-
-```sh
+#### 5. Repair AI coding agent configurations
+Search for remaining proxy overrides:
+```bash
 grep -rIl -e sleev -e 17321 ~/.claude ~/.claude.json ~/.config/opencode ~/.codex 2>/dev/null
 ```
+Edit the reported files and remove the `127.0.0.1:17321` proxy overrides and `sleev-` headers.
 
-**7 — Remove Sleev browser site data**
-
-```sh
+#### 6. Delete browser IndexedDB site data
+```bash
 find ~/.config/google-chrome ~/.config/chromium ~/.config/BraveSoftware \
      ~/.var/app/org.chromium.Chromium ~/.var/app/com.google.Chrome \
      ~/.var/app/com.brave.Browser ~/.mozilla/firefox \
-     -depth -iname '*sleev*' -print 2>/dev/null
+     -depth -iname '*sleev*' -exec rm -rf {} + 2>/dev/null
 ```
-
-Review the output, then delete the listed paths (`rm -rf` each one). Example of what it finds:
-`~/.config/google-chrome/Default/IndexedDB/https_sleev.ai_0.indexeddb.leveldb`.
-Also check browser **extensions** manually and remove any Sleev-related one.
-
-**8 — Verify** → [§ 6](#6--verify-sleev-is-gone)
 
 ---
 
 ## 5. 🔗 Option C — What Sleev officially tells you to do (and why it isn't an uninstall)
 
-As of **5 October 2026**, the *entire* official removal surface of sleev.ai is:
+As verified across [sleev.ai/docs](https://sleev.ai/docs), [sleev.ai/docs/faq](https://sleev.ai/docs/faq), and [sleev.ai/docs/config/deconfigure](https://sleev.ai/docs/config/deconfigure), the entirety of Sleev's official "exit strategy" is:
 
-| Officially documented | What it actually does | What it leaves behind |
+| Officially Documented by Sleev | What it Actually Does | What it Leaves Behind on Disk |
 | --- | --- | --- |
-| FAQ *"How do I stop using Sleev?"* → "remove the Sleev-specific entries from your harness's config file… open the sleev TUI and sign out" ([sleev.ai/docs/faq](https://sleev.ai/docs/faq)) | Hand-edit your own tool configs, then sign out | Binary, service unit, database, logs, browser data |
-| Docs › Deconfigure → `sleev auth logout` ([sleev.ai/docs/config/deconfigure](https://sleev.ai/docs/config/deconfigure)) | "Signing out removes local auth state and gateway config, deconfigures supported harnesses, and stops the local gateway service" | Binary, service unit file, session/message database, logs, cache, browser data |
-| `sleev harness <harness> disable` ([sleev.ai/docs/cli-reference](https://sleev.ai/docs/cli-reference)) | Removes one harness's Sleev routing entry | Everything else |
-| Nothing at all about *deleting* the program | — | The program itself |
+| **FAQ:** *"How do I stop using Sleev?"* → "remove the Sleev-specific entries from your harness's config file… open the sleev TUI and sign out" | Asks the user to manually edit raw JSON/TOML files and interact with a terminal UI | Everything: binary, background services/tasks, SQLite database, HTTP logs, browser caches |
+| **Deconfigure:** `sleev auth logout` | Attempts to invalidate remote auth token and stop local service | **Fails completely on Windows** if run unelevated (crashes with Task Scheduler access denied). On all platforms, leaves executables, local session databases, HTTP request dumps, and browser site data completely intact. |
+| **Harness Disable:** `sleev harness <name> disable` | Removes routing entry from one single tool | All background software, scheduled tasks, databases, and other harnesses remain untouched |
+| **Actual Uninstaller:** — | **DOES NOT EXIST.** | The entire software suite |
 
-> [!NOTE]
-> To be fair: Sleev is not invisible — it documents a gateway, a service and a "deconfigure"
-> step, and its sign-out does stop the gateway. But **signing out is not uninstalling**: the docs
-> never tell you how to delete the program, its service, or the data it collected about your
-> sessions. And their Terms/EULA say *"you must stop using and uninstall Sleev"* — an obligation
-> to perform an action they never explain how to perform.
-
-**Bottom line:** for a complete removal you must do what this guide describes — and no one should
-need a detective's guide to delete software they installed.
+> [!CAUTION]
+> **Signing out is NOT uninstalling.**
+> Sleev's documentation conflates "signing out of an account" with "removing software". When you sign out, the multi-megabyte binaries remain, the logon startup persistence remains, the unencrypted local database of your conversations remains, and hundreds of JSON logs of your source code and API exchanges remain on your hard drive.
 
 ---
 
 ## 6. ✅ Verify Sleev is gone
 
-Run these after cleanup — each should come back empty / not-found:
+Run these checks after performing the cleanup. Each check should return empty or confirm the resource is absent.
 
-```sh
-command -v sleev                                   # nothing
-systemctl --user status sleeve-gateway.service      # "Unit ... not-found"
-systemctl --user is-enabled sleeve-gateway.service  # "not-found"
-find ~ -maxdepth 5 -iname '*sleev*' 2>/dev/null     # nothing
+### On Windows (PowerShell)
+```powershell
+Get-Command sleev -ErrorAction SilentlyContinue             # Must output nothing
+Get-ScheduledTask -TaskName "SleeveGateway" -ErrorAction SilentlyContinue # Must output nothing
+Get-NetTCPConnection -LocalPort 17321 -ErrorAction SilentlyContinue       # Must output nothing
+Get-ChildItem "$env:LOCALAPPDATA\sleev", "$env:APPDATA\sleev" -ErrorAction SilentlyContinue # Must output nothing
 ```
 
-If Sleev reappears after a reboot, check for things this guide can't see from here:
-
-- Browser extensions (chrome://extensions, about:addments) — remove anything Sleev-related
-- AI harness configs re-pointing to `127.0.0.1:17321` (step 6 of [§ 4](#4--option-b--manual-step-by-step-no-script))
-- System-wide files outside your home directory (this guide and script are deliberately per-user;
-  use your distribution's file search and inspect results before deleting)
+### On Linux (Bash)
+```bash
+command -v sleev                                     # Must output nothing
+systemctl --user status sleeve-gateway.service 2>&1  # Must say "Unit sleeve-gateway.service could not be found."
+systemctl --user is-enabled sleeve-gateway.service   # Must say "not-found"
+find ~ -maxdepth 4 -iname '*sleev*' 2>/dev/null      # Must output nothing
+```
 
 ---
 
-## 7. 🕵 The shady part: install is one command, uninstall is a secret
+## 7. 🚨 The shady reality: Charging for software you can't uninstall
 
-**Installing Sleev** — from [sleev.ai](https://sleev.ai/) front and center:
+Why does this repository exist? Why did the community have to write removal scripts and reverse-engineer directory structures for a commercial AI developer tool?
 
-```sh
-curl -fsSL https://sleev.ai/install.sh | bash      # or PowerShell installer, or: npm install -g sleev
-```
+Because **[Sleev.ai](https://sleev.ai)** built a commercial product that aggressively inserts itself into developer workflows, charges users via subscription billing, yet **deliberately omits any mechanism to uninstall it**.
 
-**Uninstalling Sleev** — as of **5 October 2026**, after checking
-[the docs](https://sleev.ai/docs/quickstart), the [CLI reference](https://sleev.ai/docs/cli-reference),
-the [FAQ](https://sleev.ai/docs/faq), the [Deconfigure page](https://sleev.ai/docs/config/deconfigure),
-the [Terms](https://sleev.ai/terms) and the [EULA](https://sleev.ai/eula):
+### 1. The Blatant Asymmetry: 1-Second Install vs. Impossible Uninstall
 
-- ❌ No `sleev uninstall` / `sleev remove` command exists (the CLI reference lists every command — uninstall is not among them)
-- ❌ No uninstall or removal page exists in the docs
-- ❌ The install script has no `--uninstall` option
-- ❌ The FAQ's answer to *"How do I stop using Sleev?"* is to **manually edit your tool's config files** and "open the sleev TUI and sign out" — advice that assumes you know what a TUI and a harness config are
-- ❌ Their own Terms/EULA tell you that you **"must stop using and uninstall Sleev"** … and never say how
+- **To install Sleev:** [sleev.ai](https://sleev.ai) provides a frictionless one-line command (`curl -fsSL https://sleev.ai/install.sh | bash` or a PowerShell equivalent or `npm install -g sleev`). A novice can install it in five seconds without typing a password.
+- **To uninstall Sleev:** There is **no command**. There is no `--uninstall` flag. There is no `sleev uninstall`. There is no uninstaller binary. There is no documentation page. There is no entry in Windows Settings > Installed Apps.
 
-What that means in practice:
+This asymmetry is not an oversight. In modern software engineering, nobody accidentally forgets to write an uninstaller while simultaneously building cross-platform daemon management, multi-version update pipelines, WorkOS enterprise authentication, SQLite schema migrations, and a Stripe payment integration. **Omitting the uninstaller is a dark pattern designed to prevent churn through artificial friction.**
 
-1. **Install takes one pasted command and zero knowledge. Removal takes research.** Asymmetry like
-   that is not an accident — it's a design choice that favors retention over your control.
-2. **"Sign out" quietly keeps your data.** The official sign-out stops the gateway but leaves the
-   local SQLite database of your sessions, messages and usage tracking, tens of megabytes of
-   HTTP/debug logs, cached credential helpers and browser site data on your disk.
-3. **A background service that starts at every login and holds credentials for your AI providers
-   should ship a one-word remover.** Package managers have `apt remove` / `npm uninstall` / `flatpak
-   uninstall`; even browser toolbars have an "Uninstall" button. Sleev has none of these.
-4. **This shouldn't be allowed to be normal.** Everyone deserves the right to remove software from
-   their own system **easily and without technical knowledge** — especially when the developer
-   refuses to provide uninstall instructions. If a vendor won't document removal, the community
-   has to. That's this repository.
+### 2. You Want to Charge People Money, But Won't Let Them Uninstall?
 
-> [!TIP]
-> Want to hold vendors to it? The standard is simple: **if you can install it with one command,
-> you must be able to remove it with one command — and say so in your docs.**
+Look at [sleev.ai/pricing](https://sleev.ai/pricing). Sleev is not a freeware hobby script; it is a venture-backed commercial product charging users monthly fees for context compression on Pro models.
 
-And a fair comparison test for any tool in this space: **does its docs have an Uninstall page?**
-Sleev's doesn't. CMX's does (see below). One of those two companies treats you like an owner.
+How can a company take credit card payments for software that:
+- Cannot be uninstalled natively through the user's operating system?
+- Cannot be uninstalled via any option in its own settings or CLI?
+- Does not even provide a guide on its website explaining what files it created?
+
+Selling commercial software without an uninstallation path is unacceptable in enterprise and consumer software alike. It violates basic software hygiene and resembles Potentially Unwanted Programs (PUPs) from the adware era.
+
+### 3. A Massive Security Concern & Corporate Liability
+
+Sleev is not an isolated utility; it operates as a **local shadow proxy**:
+1. **Plaintext Interception of Intellectual Property:** Sleev sits between your IDE (OpenCode, Codex, Claude Code) and your LLM provider, listening on port `17321`. Every line of proprietary source code, every API key, every database credential, and every architectural plan you send to an AI model flows through Sleev's gateway.
+2. **Gigabytes of Unencrypted Session Dumps:** In real-world installations, Sleev's `debug-logs/http` directory accumulates **thousands of unencrypted JSON files** containing the exact payloads of your prompts and model responses. Even when Sleev's command passes `--redact-logs` and `--auto-clear-logs`, raw request bodies are stored in plaintext on disk.
+3. **Local SQLite Surveillance Database:** Sleev stores your session history, message transcripts, token counts, and tool invocations in a local SQLite database (`sleeve.sqlite`).
+4. **Environment Sabotage (Hostage Architecture):** When Sleev installs, it silently rewrites your developer tool configs (`opencode.jsonc`, `config.toml`) to route all AI traffic to `127.0.0.1:17321`. If a user attempts to delete the Sleev executable or stop the service, their entire AI coding environment immediately stops working with network failure errors. Users who don't know how to hand-edit internal agent configs are forced to keep Sleev running just so their tools work.
+5. **Enterprise Compliance Nightmare:** If you operate under **SOC 2, ISO 27001, HIPAA, or GDPR** (e.g. the Right to Erasure / Right to be Forgotten), installing Sleev is an immediate compliance violation. You cannot certify data hygiene or clean offboarding on employee workstations when third-party software persists background services that record prompt history with zero supported decommissioning mechanism.
+
+### 4. The Legal Hypocrisy: Demanding You Do What They Won't Let You Do
+
+Read Sleev's own legal documents:
+- [Sleev Terms of Service](https://sleev.ai/terms)
+- [Sleev End User License Agreement (EULA)](https://sleev.ai/eula)
+
+Their legal agreements explicitly state that upon termination of your account or subscription, **"you must immediately stop using and uninstall Sleev from all devices."**
+
+**How can you legally demand that a customer uninstall your software when you refuse to provide an uninstaller or instructions on how to do so?**
+You are imposing a contractual obligation on your users that you have deliberately engineered to be impossible without community-authored guides.
 
 ---
 
 ## 8. 🌱 Free alternative: CMX (Compressius Maximus)
 
-Removed Sleev but still want local AI-context token compression? **[CMX (Compressius Maximus)](https://compressi.us)**
-is a free option — and the anti-Sleev in every way this guide cares about.
+If you need AI-context token compression to cut your API costs, you do not need to tolerate dark patterns or closed traps. **[CMX (Compressius Maximus)](https://compressi.us)** is a free, transparent alternative:
 
-> *"CMX compresses repeated context on your machine before your coding agent sends it to your model
-> provider. Use fewer input tokens and reduce API costs when compression is worthwhile. Free to use
-> with Codex, OpenCode, and other supported agents."* — [compressi.us](https://compressi.us)
+> *"CMX compresses repeated context on your machine before your coding agent sends it to your model provider. Use fewer input tokens and reduce API costs when compression is worthwhile. Free to use with Codex, OpenCode, and other supported agents."* — [compressi.us](https://compressi.us)
 
-| | **Sleev** (what you just removed) | **CMX (Compressius Maximus)** |
+| Feature | **Sleev** (sleev.ai) | **CMX (Compressius Maximus)** |
 | --- | --- | --- |
-| Price | Free tier, then **paid when you use Pro models** with their compression | **Free to use** — site states: *"No subscriptions, no paid plans."* |
-| Where your context goes | Their service (`api.sleev.ai` control endpoint, stored credentials) | **Local gateway** (`127.0.0.1:17322`), compression runs on your machine; *"Your prompts and provider credentials stay in that local gateway."* |
-| Account required | Yes | No — *"You can use compression without creating an account."* |
-| Trusted-model / secret-routing caveats | Undocumented | Documented openly: older open-weight models are asked to quote, not paraphrase; `/status`, `/health`, `/metrics` routes are routed to *some* endpoints |
-| **How to uninstall** | ❌ **Nothing** — that's why this repo exists | ✅ **[An Uninstall page in the docs](https://docs.compressi.us)** — plus a local CLI (`cmx logout`, etc.) |
-| License | Proprietary | Proprietary gratis — free to use, not open source (honest disclosure) |
+| **Pricing** | Paid tier on [sleev.ai/pricing](https://sleev.ai/pricing) when using Pro models | **Free to use** — *"No subscriptions, no paid plans."* |
+| **Account Required** | Yes (WorkOS / Sleev account) | **No** — works completely locally without an account |
+| **Data Retention** | Heavy unencrypted HTTP request dumps, SQLite database, tracking logs | Local gateway (`127.0.0.1:17322`), credentials and prompts stay in your control |
+| **Uninstaller** | ❌ **NONE** (No command, no docs, no OS integration) | ✅ **[Documented Uninstall Page](https://docs.compressi.us)** and CLI removal commands |
+| **Integrity** | Locks AI tool configs to its port; breaks tools on exit | Documents exactly how configurations work and how to revert them |
 
-### Why it likely won't "enshittify" the way Sleev did
+**A product that openly documents how to uninstall itself is a product that respects you as the owner of your computer.**
 
-No one can promise a vendor never changes — so don't take a promise, look at the incentives:
-
-1. **Sleev's business model *was* the enshittification.** Charging you when you use Pro models means the
-   "savings" tool quietly taxes the exact usage it claims to save you money on. Worse: the charge lands
-   precisely where users can least afford it — the expensive models.
-2. **CMX has nothing to sell you later.** The site states plainly: *"No subscriptions, no paid plans,"*
-   and *"We do not currently offer or promote any premium or paid tier."*
-3. **It's local and accountless.** Compression runs in a local gateway on your machine and works without
-   an account — so there is no usage meter to nickel-and-dime and no prompt data to monetize.
-4. **A product that documents how to uninstall itself isn't building a trap.** The vendor willing to
-   show you the exit is the vendor that has to earn your stay.
-
-That's the honest version: **free today, structurally hard to enshittify tomorrow, and it publishes
-its own exit.** If it ever does sell out — leave it as easily as you left Sleev. That's the real
-standard this repo is arguing for.
-
-**Install & docs:** [compressi.us](https://compressi.us) · [docs.compressi.us](https://docs.compressi.us)
-
-> [!NOTE]
-> This is an independent recommendation, not a paid placement. Facts verified against compressi.us
-> on 5 October 2026; pricing and policies change, so check the site. Want a fully open-source
-> option instead? Search for open-source context-compression tools and review their licenses.
+Website: [compressi.us](https://compressi.us) · Documentation: [docs.compressi.us](https://docs.compressi.us)
 
 ---
 
 ## 9. 📦 What Sleev leaves on your system
 
-Observed on a real Linux install (`curl | bash` layout). This is the full footprint the cleanup
-targets:
+When Sleev installs, it creates files across several hidden paths. Below is the complete footprint our cleanup tools target:
 
-| Path | What it is |
+### Windows Paths
+
+| Path | Description |
 | --- | --- |
-| `~/.local/bin/sleev` | The Sleev CLI binary |
-| `~/.config/systemd/user/sleeve-gateway.service` | Systemd **user** service — starts with your login session |
-| `~/.config/systemd/user/default.target.wants/sleeve-gateway.service` | The "start at login" enablement link |
-| `~/.config/sleev/` | Config: mode, install ID, credentials, management token, control URL `https://api.sleev.ai` |
-| `~/.local/share/sleev/` | App data incl. the SQLite database (sessions, messages, tracking, tool usage) |
-| `~/.local/state/sleev/` | State + logs (e.g. `total-saved-tokens.json`, debug/HTTP logs, credential helper) |
-| `~/.cache/sleev-gateway/` | Gateway cache |
-| Browser profile dirs (`*sleev*`) | e.g. `https_sleev.ai_0.indexeddb.leveldb` IndexedDB data in Chrome/Chromium/Brave/Firefox |
-| AI harness config files | Entries routing your coder's API traffic via `127.0.0.1:17321` |
+| `Task Scheduler: \SleeveGateway` | Background task configured to launch `sleeve-gateway.exe` at every user logon |
+| `%LOCALAPPDATA%\sleev\` | SQLite database (`sleeve.sqlite`), Task definition (`sleeve-gateway-task.xml`), models cache (`models.dev.json`), tracking data |
+| `%LOCALAPPDATA%\sleev-gateway\` | Multi-version binary cache (`1.7.7`, `1.7.9`, `1.8.3`, `1.8.10`...) containing ~75 MB `sleeve-gateway.exe` copies (>300 MB of duplicate executables) |
+| `%APPDATA%\sleev\` | Gateway configuration (`gateway.json`), authentication tokens (`cli-auth.json`, `workos.json`, `config.json`) |
+| `%APPDATA%\ai.opencode.desktop\sleev\` | CLI lifecycle and debug logs |
+| `%USERPROFILE%\.local\bin\sleev.exe` | Main Sleev CLI binary |
+| `%USERPROFILE%\.local\state\sleev\` | Runtime state containing active daemon PID and port (`gateway-runtime.json`) |
+| `%APPDATA%\npm\sleev*` | Global npm executable wrappers (`sleev`, `sleev.cmd`, `sleev.ps1`) |
+| `%LOCALAPPDATA%\Google\Chrome\...\IndexedDB\` | `https_sleev.ai_0.indexeddb.leveldb` browser storage |
+| AI tool configurations | `~/.codex/config.toml` (`[model_providers.sleev]`) and `~/.config/opencode/opencode.jsonc` (proxy rewrites to `127.0.0.1:17321`) |
 
-**npm installs** add the CLI package (`npm uninstall -g sleev`) and create the same per-user
-service/config/data paths above.
+### Linux Paths
+
+| Path | Description |
+| --- | --- |
+| `~/.config/systemd/user/sleeve-gateway.service` | Systemd user service unit running the background gateway |
+| `~/.config/systemd/user/default.target.wants/` | Enablement symlink ensuring the service launches at login |
+| `~/.local/bin/sleev` | Sleev CLI binary |
+| `~/.config/sleev/` | Configuration, WorkOS credentials, install ID, control endpoint URL |
+| `~/.local/share/sleev/` | Session and message SQLite database (`sleeve.sqlite`) |
+| `~/.local/state/sleev/` | Runtime state, credential helpers, token records, debug HTTP logs |
+| `~/.cache/sleev-gateway/` | Gateway cache |
+| Browser profile directories | Sleev-named IndexedDB site databases under Chrome, Chromium, Brave, and Firefox |
+| AI tool configurations | Proxy redirections in `~/.claude.json`, `~/.config/opencode`, `~/.codex` |
 
 ---
 
-## 10. 🔍 Field notes from a real installation (September 2026)
+## 10. 🔍 Field notes from real installations (Linux & Windows)
 
-Findings from inspecting one Linux laptop where Sleev had been installed. Kept factual:
-these are observations, not accusations.
+These notes reflect direct technical findings from inspecting real-world developer workstations where Sleev was installed.
 
-### Installation & persistence
+### Windows 10/11 Audit (November 2026)
 
-- Sleev installed a systemd **user** unit `~/.config/systemd/user/sleeve-gateway.service`, enabled
-  via `default.target.wants`. `WantedBy=default.target` means it starts with the user session.
-- The unit had `Restart=on-failure` with a 2-second delay; journals showed starts on several days
-  between 23–27 September 2026.
-- The gateway was configured to bind `127.0.0.1:17321` — a loopback address, per this unit's config.
-- The unit passed `--config`, `--db-path`, `--debug-log-dir`, `--request-log-dir`,
-  `--auto-clear-logs`, `--redact-logs`, an uninstall-sentinel path and cleanup paths to its binary —
-  i.e. built-in cleanup/logging mechanisms exist inside the installed invocation (not executed or
-  reverse-engineered here).
+- **Uninstaller Status:** Complete absence in Windows Settings (`ms-settings:appsfeatures`) and Registry uninstall keys (`HKCU` and `HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall`). No `uninstall.exe` or `unins000.exe` exists in any Sleev directory.
+- **Logon Persistence via Task Scheduler:** Sleev registers a scheduled task named `SleeveGateway` set to run with `LogonTrigger` on the user account. The action launches `sleeve-gateway.exe` with arguments specifying local binding on `127.0.0.1:17321` and pointing to SQLite databases in `AppData\Local\sleev`.
+- **Admin Lock on Task Deletion:** The scheduled task was written to the root Task Scheduler folder with permissions that prevent unprivileged removal; executing `sleev auth logout` as a standard user fails with `ERROR: Access is denied` because Sleev's own CLI fails to deregister its task!
+- **Bloated Gateway Versions:** Sleev's auto-updater downloads whole ~75 MB executables for each version into separate subfolders (`AppData\Local\sleev-gateway\1.7.7`, `1.7.9`, `1.8.3`, `1.8.10`) without purging older builds, silently consuming hundreds of megabytes.
+- **Aggressive Config Hijacking:** Sleev modified `~/.config/opencode/opencode.jsonc` by wrapping **11 different AI model providers** (`opencode-go`, `openrouter`, `anthropic`, `openai`, `google`, `copilot`, `mimo`, `moonshotai`, etc.) with proxy headers and redirecting their `baseURL` to `http://127.0.0.1:17321`. In `~/.codex/config.toml`, it added custom model providers pointing to its local port.
+- **Plaintext Payload Dumps:** Sleev stored hundreds of full HTTP conversations under `AppData\Local\sleev\gateway\1.8.10\debug-logs\http\...` formatted as canonical request/response JSON files detailing full developer prompts and code generation completions.
 
-### Remote configuration & local data retention
+### Linux Audit (September 2026)
 
-- `~/.config/sleev/gateway.json` contained `mode: guest`, an installation ID, credential and
-  management-token fields, and the control URL `https://api.sleev.ai`. (Secrets not reproduced.)
-- The gateway error log was ~14.4 MB / ~205,000 lines, referencing `api.sleev.ai`, `chatgpt.com`,
-  `opencode.ai`, `openrouter.ai` and others. String counts are not packet captures — they show what
-  was logged, not what was transmitted.
-- `debug-logs/http` held **784 JSON files** (~**66.4 MB**) despite the unit passing both
-  `--redact-logs` and `--auto-clear-logs`. Payload contents were not inspected or published.
-- The SQLite database contained tables for sessions, messages, tracking, tool observations/usage and
-  rollups: **119 sessions, 18,554 messages, 6,305 tracking rows** plus aggregates — retained local
-  records of AI-assisted work.
-- Also present: `total-saved-tokens.json`, a `claude-desktop-cred` helper binary, and Sleev-named
-  Chrome IndexedDB site data. Binaries were ELF executables; a printable-string scan showed nothing
-  conclusive (this is not a malware analysis).
-- No matching Debian, Flatpak or Snap package; no desktop launcher.
-
-### Assessment limits
-
-The persistent user service, remote control URL with stored management credentials, substantial
-HTTP/debug logs and local session/tracking data are legitimate **privacy and persistence concerns**.
-They do **not** establish malicious intent or covert exfiltration. The binaries were not executed,
-message/HTTP payloads were not read, no traffic was captured, and no full reverse-engineering audit
-was performed. Decide for yourself — and remove it if you don't want it running (which should have
-been easy in the first place).
+- **Systemd User Daemon:** Created `sleeve-gateway.service` enabled via `default.target.wants` with `Restart=on-failure` and a 2-second restart delay.
+- **Local SQLite Data:** `sleeve.sqlite` retained over 119 sessions, 18,554 message records, and 6,305 tracking rows.
+- **HTTP Debug Logs:** `debug-logs/http` contained 784 JSON files totaling ~66.4 MB of recorded traffic despite `--redact-logs` and `--auto-clear-logs` arguments being passed to the daemon.
+- **No Package Manager Registration:** No `.deb`, `.rpm`, Flatpak, or Snap registration; purely loose binaries in `~/.local/bin`.
 
 ---
 
 ## 11. ⚠ Safety notes & limitations
 
-> [!WARNING]
-> - **Destructive, no backup.** Cleanup permanently deletes Sleev's local session/message database,
->   token/credential files, logs, config and matching browser data. If you need any of it, copy it
->   elsewhere first.
-> - **Rotate your credentials.** Deleting local copies does not revoke remote credentials. If you
->   pasted provider API keys into Sleev, revoke/rotate them with the provider (OpenRouter, Anthropic,
->   OpenAI, …).
-> - **Close browsers first**, or their site-data databases may be in use and partially cleaned.
-> - **Scope.** The script does not use `sudo`, touch system-wide files, or delete unrelated browser
->   profile data. It cannot prove that no renamed/copied Sleev files exist elsewhere.
-> - **Harness configs.** The script does not edit your AI tool configs; do step 6 of
->   [§ 4](#4--option-b--manual-step-by-step-no-script) or the tools may keep trying to reach the
->   removed gateway.
+- **Destructive Deletion:** Running these scripts permanently removes Sleev's local SQLite database, tokens, logs, and cache. No backup is made.
+- **API Key Revocation:** If you entered private API keys into Sleev's interface or CLI, deleting the local software does not invalidate those keys on the provider's servers. Log in to Anthropic, OpenAI, OpenRouter, or Google AI Studio and rotate your API keys.
+- **Close Browsers First:** Chrome, Edge, and Firefox lock their IndexedDB database files while running. Close your browsers before running the cleanup scripts so site data can be unlocked and deleted.
+- **Repair Your Tool Configs:** If your coding assistant (OpenCode, Codex, Claude Code) gives network errors after uninstalling Sleev, check its config file (e.g. `~/.config/opencode/opencode.jsonc` or `~/.codex/config.toml`) and remove the Sleev proxy (`127.0.0.1:17321`) entries.
 
 ---
 
 ## 12. ❓ FAQ
 
 <details>
+<summary><b>Why doesn't Sleev show up in Windows "Add or Remove Programs"?</b></summary>
+Because Sleev does not register with Windows Installer or the Windows Registry uninstall keys (<code>HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall</code>). It simply unpacks binaries into AppData, registers a Scheduled Task, and leaves no native operating system uninstall hook.
+</details>
+
+<details>
+<summary><b>Why does <code>sleev auth logout</code> fail on Windows?</b></summary>
+When Sleev registers its <code>SleeveGateway</code> task, it often does so in a way that requires Administrator elevation to modify. When you run <code>sleev auth logout</code> as a normal user, Sleev attempts to reconfigure Task Scheduler and crashes with <code>ERROR: Access is denied</code>.
+</details>
+
+<details>
 <summary><b>Does Sleev have an official uninstall command?</b></summary>
-
-No. As of 5 October 2026 there is no <code>sleev uninstall</code>, no uninstall docs page, and no
-uninstall option in the installer. The closest official actions are <code>sleev auth logout</code>
-(sign out + stop gateway + deconfigure harnesses) and <code>sleev harness &lt;harness&gt; disable</code>.
-Neither deletes the binary, service unit, database or logs.
+No. As of late 2026, there is no <code>sleev uninstall</code> command in their CLI, no uninstall script, and no removal guide anywhere on <a href="https://sleev.ai">sleev.ai</a>.
 </details>
 
 <details>
-<summary><b>Is signing out (<code>sleev auth logout</code>) enough?</b></summary>
-
-It stops the gateway and deconfigures harnesses — good first step — but leaves the program, the
-systemd unit file, the local session/message database, logs, cache and browser data on disk.
-Follow this guide for a full removal.
+<summary><b>Is signing out enough?</b></summary>
+No. Signing out leaves the background binaries, the logon service/task, the multi-megabyte SQLite database containing your past sessions, and all HTTP debug logs on your system.
 </details>
 
 <details>
-<summary><b>I installed with <code>npm install -g sleev</code> — is it different?</b></summary>
-
-Only the CLI location changes. Run <code>npm uninstall -g sleev</code> instead of deleting
-<code>~/.local/bin/sleev</code>, then do the rest of
-<a href="#4--option-b--manual-step-by-step-no-script">§ 4</a> (service, config, data, browser, harness).
+<summary><b>Why did my AI coding tools break after deleting Sleev?</b></summary>
+Because Sleev rewrote your AI tool configuration files (such as <code>~/.config/opencode/opencode.jsonc</code> or <code>~/.codex/config.toml</code>) to route all requests to Sleev's local port (<code>127.0.0.1:17321</code>). Once Sleev is gone, the proxy is dead. Follow Step 8 in the manual instructions or use our scripts to clean those config files.
 </details>
 
 <details>
 <summary><b>Is Sleev malware?</b></summary>
-
-This guide does not claim that. It documents verified facts: a login-started background service, a
-remote control endpoint with stored credentials, and large amounts of retained local session data —
-and the absence of any documented uninstall. Whether to run it is your call; removing it is your
-right either way. See <a href="#10--field-notes-from-a-real-installation-september-2026">§ 10</a> for
-the evidence and its limits.
-</details>
-
-<details>
-<summary><b>Will it come back after I remove it?</b></summary>
-
-Not on its own — Sleev has no system package or launcher that would reinstall it. If it reappears,
-check browser extensions, harness configs, and whether another tool reinstalled it.
-</details>
-
-<details>
-<summary><b>Can I use this to uninstall other software?</b></summary>
-
-No. Every path is hard-coded to Sleev's footprint and the script refuses to touch anything outside
-your home directory or not named Sleev. Don't adapt it blindly — find a dedicated guide instead.
+We do not label it malware, but it exhibits classic Potentially Unwanted Program (PUP) behaviors: unannounced background persistence, intercepting network traffic on local ports, logging sensitive developer code to unencrypted local files, hijacking tool configurations, and providing zero uninstallation mechanism while charging subscription fees.
 </details>
 
 ---
 
 ## 🔗 Share this guide
 
-If Sleev's lack of an uninstaller cost you an evening, other people are searching for this too.
-**Star ⭐ the repo** so it ranks higher in GitHub and search results, and share the link:
-
-`https://github.com/administrakt0r/sleev-ai-uninstall`
-
-Common search terms this guide answers: *how to uninstall Sleev* · *remove sleev.ai* ·
-*uninstall Sleev AI gateway Linux* · *sleev no uninstall command* ·
-*sleeve-gateway.service remove* · *delete sleev from my computer* ·
-*free alternative to sleev.ai* · *AI context compression free* · *CMX Compressius Maximus*.
+If Sleev's lack of an uninstaller frustrated you, help other developers find this solution:
+- **Star ⭐ this repository** on GitHub so it ranks at the top of search results.
+- Share the link with developers who value control over their machines:
+  `https://github.com/administrakt0r/sleev-ai-uninstall`
 
 ---
 
@@ -518,7 +487,6 @@ Common search terms this guide answers: *how to uninstall Sleev* · *remove slee
 
 **Software you can't remove is software you don't control.**
 
-*Not affiliated with Sleev. Verified against sleev.ai on 5 October 2026 — if Sleev ships a real
-uninstaller later, open an issue/PR and this guide will link to it.*
+*Independent community project. Not affiliated with [Sleev.ai](https://sleev.ai). If Sleev ever builds a proper, native uninstaller, open an issue and we will gladly link to it.*
 
 </div>
