@@ -8,21 +8,19 @@ export HOME="$fixture/home"
 mkdir -p "$HOME/.config/sleev" "$HOME/.local/share/sleev" "$HOME/.config/chromium/Default/IndexedDB/not-sleev.ai"
 mkdir -p "$fixture/outside" "$fixture/bin"
 touch "$HOME/.config/sleev/keep" "$HOME/.local/share/sleev/session" "$HOME/.config/chromium/Default/IndexedDB/not-sleev.ai/keep" "$fixture/outside/keep"
-# Restrict dependencies to the real filesystem utilities, with controlled service
-# and package commands. The test cannot access a real user systemd instance.
-for cmd in bash realpath rm df ln mkdir touch; do ln -s "$(command -v "$cmd")" "$fixture/bin/$cmd"; done
+# Restrict dependencies to the real filesystem utilities. The test cannot
+# access a real user systemd instance, npm or other users' processes.
+for cmd in bash realpath rm df ln mkdir touch find; do ln -s "$(command -v "$cmd")" "$fixture/bin/$cmd"; done
 export PATH="$fixture/bin"
 # Dry-run preserves data; cleanup removes only owned locations.
-bash "$repo/uninstall-sleev.sh" --dry-run >/dev/null
+bash "$repo/uninstall-sleev.sh" --dry-run --yes >/dev/null
 [[ -f "$HOME/.config/sleev/keep" ]]
 bash "$repo/uninstall-sleev.sh" --yes >/dev/null
 [[ ! -e "$HOME/.config/sleev" && ! -e "$HOME/.local/share/sleev" ]]
-[[ -f "$HOME/.config/chromium/Default/IndexedDB/not-sleev.ai/keep" ]]
+[[ -f "$HOME/.config/chromium/Default/IndexedDB/not-sleev.ai/keep" ]] || { printf 'FAIL: unrelated browser data deleted\n' >&2; exit 1; }
 # An ancestor symlink must never redirect cleanup outside HOME.
 rm -rf -- "$HOME/.local"
 ln -s "$fixture/outside" "$HOME/.local"
-# Make the destination of the would-be removal nonempty.
-# Use an absolute utility path: PATH is intentionally restricted.
 mkdir -p "$fixture/outside/share/sleev"
 touch "$fixture/outside/share/sleev/keep"
 if bash "$repo/uninstall-sleev.sh" --yes >/dev/null 2>&1; then
