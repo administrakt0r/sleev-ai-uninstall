@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HOME_DIR="${HOME:?HOME must be set}"
 DRY_RUN=0
 ASSUME_YES=0
 
 usage() {
   printf 'Usage: %s [--dry-run] [--yes]\n' "$0"
-  printf '  --dry-run  Show cleanup targets without changing anything (default behavior is confirmation first).\n'
+  printf '  --dry-run  Show cleanup targets without changing anything.\n'
   printf '  --yes      Skip the interactive confirmation.\n'
 }
 
@@ -21,129 +20,160 @@ while (($#)); do
   shift
 done
 
-if [[ "$DRY_RUN" -eq 0 && "$ASSUME_YES" -eq 0 ]]; then
-  if [[ ! -t 0 ]]; then
-    printf 'Refusing non-interactive cleanup without --yes. Use --dry-run to inspect targets.\n' >&2
-    exit 2
-  fi
+if [[ "$DRY_RUN" -eq 0 && "$ASSUME_YES" -eq 0 && ! -t 0 ]]; then
+  printf 'Refusing non-interactive cleanup without --yes. Use --dry-run first.\n' >&2
+  exit 2
 fi
 
-printf 'Sleev cleanup targets on %s\n' "$HOME_DIR"
-printf '%s\n' \
-  "$HOME_DIR/.local/bin/sleev" \
-  "$HOME_DIR/.config/systemd/user/sleeve-gateway.service" \
-  "$HOME_DIR/.config/systemd/user/default.target.wants/sleeve-gateway.service" \
-  "$HOME_DIR/.config/sleev" \
-  "$HOME_DIR/.local/share/sleev" \
-  "$HOME_DIR/.local/state/sleev" \
+HOME_DIR="$(realpath -e -- "${HOME:?HOME must be set}")"
+if [[ "$HOME_DIR" == / || ! -d "$HOME_DIR" ]]; then
+  printf 'Refusing invalid home directory.\n' >&2
+  exit 2
+fi
+unit=sleeve-gateway.service
+unit_path="$HOME_DIR/.config/systemd/user/$unit"
+unit_link="$HOME_DIR/.config/systemd/user/default.target.wants/$unit"
+targets=(
+  "$unit_link" "$unit_path"
+  "$HOME_DIR/.local/bin/sleev"
+  "$HOME_DIR/.config/sleev"
+  "$HOME_DIR/.local/share/sleev"
+  "$HOME_DIR/.local/state/sleev"
   "$HOME_DIR/.cache/sleev-gateway"
-
-BROWSER_ROOTS=(
-  "$HOME_DIR/.config/google-chrome"
-  "$HOME_DIR/.config/chromium"
-  "$HOME_DIR/.config/BraveSoftware/Brave-Browser"
-  "$HOME_DIR/.var/app/org.chromium.Chromium/config/chromium"
-  "$HOME_DIR/.var/app/com.google.Chrome/config/google-chrome"
-  "$HOME_DIR/.var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser"
-  "$HOME_DIR/.mozilla/firefox"
 )
 
-for root in "${BROWSER_ROOTS[@]}"; do
-  if [[ -d "$root" ]]; then
-    while IFS= read -r -d '' target; do
-      printf 'Browser Sleev-named data: %s\n' "$target"
-    done < <(find "$root" -depth -iname '*sleev*' -print0 2>/dev/null)
+# A lexical home prefix alone is not enough: a symlink in an ancestor
+# redirects the deletion. A symlink at the target itself may be unlinked.
+safe_parent() {
+  local target="$1" parent
+  [[ "$target" == "$HOME_DIR/"* ]] || return 1
+  parent="${target%/*}"
+  while [[ "$parent" != "$HOME_DIR" ]]; do
+    [[ "$parent" == "$HOME_DIR/"* && ! -L "$parent" ]] || return 1
+    parent="${parent%/*}"
+  done
+}
+
+present() { [[ -e "$1" || -L "$1" ]]; }
+
+printf 'Sleev cleanup targets on %s\n' "$HOME_DIR"
+for target in "${targets[@]}"; do
+  if ! safe_parent "$target"; then
+    printf '[SKIP: unsafe ancestor] %s\n' "$target"
+  elif present "$target"; then
+    printf '[FOUND] %s\n' "$target"
+  else
+    printf '[NOT FOUND] %s\n' "$target"
   fi
 done
+printf 'User systemd unit: %s (checked before cleanup)\n' "$unit"
+printf 'Global npm package: sleev (checked before removal)\n'
+printf 'Browser data and AI tool configuration are left for manual review.\n'
 
 if [[ "$DRY_RUN" -eq 1 ]]; then
   printf '\nDry run only; no changes made.\n'
   exit 0
 fi
 
-for browser in chrome google-chrome chromium chromium-browser brave brave-browser firefox; do
-  if pgrep -x "$browser" >/dev/null 2>&1; then
-    printf 'Close %s before cleanup; no changes have been made.\n' "$browser" >&2
-    exit 3
-  fi
-done
-
 if [[ "$ASSUME_YES" -eq 0 ]]; then
-  printf '\nThis permanently deletes Sleev binaries, settings, credentials/tokens, session database, logs, cache, and matching browser site data. No backup will be made.\n'
+  printf '\nThis permanently deletes Sleev binaries, settings, credentials, session database, logs and cache. No backup will be made.\n'
   read -r -p 'Type REMOVE SLEEV to continue: ' answer
   [[ "$answer" == 'REMOVE SLEEV' ]] || { printf 'Cancelled.\n'; exit 1; }
 fi
 
-if command -v systemctl >/dev/null 2>&1; then
-  systemctl --user disable --now sleeve-gateway.service >/dev/null 2>&1 || true
-fi
-
-remove_home_path() {
-  local target="$1"
-  case "$target" in
-    "$HOME_DIR"/*) ;;
-    *) printf 'Refusing path outside home: %s\n' "$target" >&2; return 1 ;;
-  esac
-  if [[ -e "$target" || -L "$target" ]]; then
-    rm -rf -- "$target"
-    printf 'Removed %s\n' "$target"
-  fi
-}
-
-remove_home_path "$HOME_DIR/.config/systemd/user/default.target.wants/sleeve-gateway.service"
-remove_home_path "$HOME_DIR/.config/systemd/user/sleeve-gateway.service"
-remove_home_path "$HOME_DIR/.local/bin/sleev"
-remove_home_path "$HOME_DIR/.config/sleev"
-remove_home_path "$HOME_DIR/.local/share/sleev"
-remove_home_path "$HOME_DIR/.local/state/sleev"
-remove_home_path "$HOME_DIR/.cache/sleev-gateway"
-
-for root in "${BROWSER_ROOTS[@]}"; do
-  if [[ -d "$root" ]]; then
-    while IFS= read -r -d '' target; do
-      remove_home_path "$target"
-    done < <(find "$root" -depth -iname '*sleev*' -print0 2>/dev/null)
-  fi
-done
-
-if command -v systemctl >/dev/null 2>&1; then
-  systemctl --user daemon-reload >/dev/null 2>&1 || true
-  systemctl --user reset-failed sleeve-gateway.service >/dev/null 2>&1 || true
-fi
-
-printf '\nVerification of primary locations:\n'
 remaining=0
-for target in \
-  "$HOME_DIR/.local/bin/sleev" \
-  "$HOME_DIR/.config/systemd/user/sleeve-gateway.service" \
-  "$HOME_DIR/.config/systemd/user/default.target.wants/sleeve-gateway.service" \
-  "$HOME_DIR/.config/sleev" \
-  "$HOME_DIR/.local/share/sleev" \
-  "$HOME_DIR/.local/state/sleev" \
-  "$HOME_DIR/.cache/sleev-gateway"; do
-  if [[ -e "$target" || -L "$target" ]]; then
-    printf 'STILL EXISTS: %s\n' "$target"
+systemd_checked=0
+if ! safe_parent "$unit_path" || ! safe_parent "$unit_link" || [[ -L "$unit_path" ]]; then
+  printf 'Refusing to modify a unit with an unsafe path; inspect it manually.\n' >&2
+  exit 1
+fi
+if command -v systemctl >/dev/null 2>&1; then
+  if state="$(systemctl --user show -p LoadState --value "$unit" 2>/dev/null)"; then
+    systemd_checked=1
+    if [[ "$state" != not-found ]]; then
+      fragment="$(systemctl --user show -p FragmentPath --value "$unit")"
+      if [[ "$fragment" != "$unit_path" ]]; then
+        printf 'Unexpected systemd unit location; refusing cleanup: %s\n' "$fragment" >&2
+        exit 1
+      fi
+      if ! systemctl --user disable --now "$unit"; then
+        printf 'Could not disable/stop the gateway; no application files removed.\n' >&2
+        exit 1
+      fi
+      active="$(systemctl --user show -p ActiveState --value "$unit")"
+      if [[ "$active" != inactive && "$active" != failed ]]; then
+        printf 'Gateway is not stopped; no application files removed.\n' >&2
+        exit 1
+      fi
+    fi
+  else
+    printf 'Cannot verify the user systemd manager.\n' >&2
+    if present "$unit_path" || present "$unit_link"; then exit 1; fi
     remaining=1
   fi
-done
+elif present "$unit_path" || present "$unit_link"; then
+  printf 'systemctl unavailable; inspect the gateway service before cleanup.\n' >&2
+  exit 1
+fi
 
-for root in "${BROWSER_ROOTS[@]}"; do
-  if [[ -d "$root" ]]; then
-    while IFS= read -r -d '' target; do
-      printf 'STILL EXISTS: %s\n' "$target"
-      remaining=1
-    done < <(find "$root" -depth -iname '*sleev*' -print0 2>/dev/null)
+# The npm package name is exact; never invoke its lifecycle scripts.
+npm_has_sleev() {
+  local packages line
+  packages="$(npm list -g --depth=0 --parseable --offline 2>/dev/null)" || return 2
+  while IFS= read -r line; do
+    [[ "$line" == */node_modules/sleev ]] && return 0
+  done <<< "$packages"
+  return 1
+}
+if command -v npm >/dev/null 2>&1; then
+  if npm_has_sleev; then
+    if ! npm uninstall -g sleev --ignore-scripts --offline --no-audit --no-fund; then
+      printf 'npm uninstall failed.\n' >&2; remaining=1
+    fi
+  elif [[ "$?" -ne 1 ]]; then
+    printf 'Unable to inspect global npm packages.\n' >&2; remaining=1
+  fi
+fi
+
+for target in "${targets[@]}"; do
+  if ! safe_parent "$target"; then
+    printf 'SKIPPED: unsafe ancestor: %s\n' "$target" >&2; remaining=1
+  elif present "$target"; then
+    if rm -rf --one-file-system -- "$target" && ! present "$target"; then
+      printf 'Removed %s\n' "$target"
+    else
+      printf 'FAILED: %s\n' "$target" >&2; remaining=1
+    fi
   fi
 done
 
-if command -v systemctl >/dev/null 2>&1 && systemctl --user is-enabled sleeve-gateway.service >/dev/null 2>&1; then
-  printf 'STILL ENABLED: sleeve-gateway.service\n'
-  remaining=1
+printf '\nVerification of primary locations:\n'
+for target in "${targets[@]}"; do
+  if ! safe_parent "$target" || present "$target"; then
+    printf 'NOT CLEARED: %s\n' "$target" >&2; remaining=1
+  fi
+done
+if [[ "$systemd_checked" -eq 1 ]]; then
+  if ! systemctl --user daemon-reload ||
+     ! state="$(systemctl --user show -p LoadState --value "$unit" 2>/dev/null)" ||
+     [[ "$state" != not-found ]]; then
+    printf 'User unit removal could not be verified.\n' >&2; remaining=1
+  fi
 fi
-
+if command -v npm >/dev/null 2>&1; then
+  if npm_has_sleev; then
+    printf 'Global npm sleev package remains.\n' >&2; remaining=1
+  elif [[ "$?" -ne 1 ]]; then
+    printf 'Cannot verify global npm package removal.\n' >&2; remaining=1
+  fi
+fi
+if command -v sleev >/dev/null 2>&1; then
+  printf 'Sleev command remains in PATH.\n' >&2; remaining=1
+fi
+printf 'Review browser site data for sleev.ai and restore any Sleev proxy settings manually.\n'
 if [[ "$remaining" -eq 0 ]]; then
-  printf 'No known Sleev files or service remain in the checked locations.\n'
+  printf 'Known application targets cleared; see manual checks in README.\n'
 else
-  printf 'Some Sleev items remain; inspect the paths listed above.\n' >&2
+  printf 'Cleanup incomplete; review the warnings above.\n' >&2
   exit 1
 fi
